@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="한국 법률 브리핑을 카드와 상세 문서로 살펴보는 정적 아카이브"
+    />
+    <meta name="theme-color" content="#f4f0e8" />
+    <title>법률 브리핑 아카이브</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./vendor/marked.umd.js" defer></script>
+    <script src="./vendor/purify.min.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#/" aria-label="브리핑 목록으로 이동">
+        <span class="brand-mark" aria-hidden="true">法</span>
+        <span>
+          <strong>법률 브리핑</strong>
+          <small>ARCHIVE</small>
+        </span>
+      </a>
+      <p class="header-note">법령·판례 기반 정보 스냅샷</p>
+    </header>
+
+    <main id="app" tabindex="-1">
+      <section class="loading" aria-live="polite">
+        <span class="loading-mark" aria-hidden="true"></span>
+        <p>브리핑을 불러오는 중입니다.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>본 아카이브는 저장 시점의 정적 자료이며 공식 법률 자문이 아닙니다.</p>
+    </footer>
+  </body>
+</html>
