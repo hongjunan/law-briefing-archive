@@ -1,4 +1,11 @@
 const app = document.querySelector("#app");
+const appScroll = document.querySelector("#app-scroll");
+const sidebar = document.querySelector("#sidebar");
+const backdrop = document.querySelector("#backdrop");
+const menuButton = document.querySelector("#menu-btn");
+const themeButton = document.querySelector("#theme-btn");
+const themeLabel = document.querySelector("#theme-label");
+const themeColor = document.querySelector('meta[name="theme-color"]');
 
 const state = {
   records: [],
@@ -75,24 +82,29 @@ function uniqueTags(records) {
     .map(([tag]) => tag);
 }
 
-function cardTemplate(record, index) {
+function listItemTemplate(record) {
   const tags = record.tags
     .slice(0, 4)
-    .map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`)
+    .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
     .join("");
   const href = `#/briefing/${encodeURIComponent(record.id)}`;
+  const sourceCount = record.citations.length;
 
   return `
-    <article class="briefing-card">
-      <a class="card-link" href="${href}" aria-label="${escapeHtml(record.title)} 상세 보기"></a>
-      <div class="card-meta">
-        <span class="card-number">NO. ${String(index + 1).padStart(2, "0")}</span>
-        <time datetime="${escapeHtml(record.createdAt)}">${escapeHtml(formatDate(record.createdAt))}</time>
+    <a class="archive-item" href="${href}" aria-label="${escapeHtml(record.title)} 상세 보기">
+      <div>
+        <div class="item-title-row">
+          <h2>${escapeHtml(record.title)}</h2>
+          <time class="item-date" datetime="${escapeHtml(record.createdAt)}">${escapeHtml(formatDate(record.createdAt))}</time>
+        </div>
+        <p class="item-summary">${escapeHtml(record.summary)}</p>
+        <div class="item-meta" aria-label="태그와 출처">
+          ${tags}
+          ${sourceCount ? `<span class="source-count">출처 ${sourceCount}</span>` : ""}
+        </div>
       </div>
-      <h2>${escapeHtml(record.title)}</h2>
-      <p class="card-summary">${escapeHtml(record.summary)}</p>
-      <div class="card-tags" aria-label="태그">${tags}</div>
-    </article>
+      <span class="item-arrow" aria-hidden="true">›</span>
+    </a>
   `;
 }
 
@@ -110,14 +122,14 @@ function filteredRecords() {
 }
 
 function renderCards() {
-  const grid = document.querySelector("#briefing-grid");
+  const list = document.querySelector("#briefing-list");
   const resultCount = document.querySelector("#result-count");
-  if (!grid || !resultCount) return;
+  if (!list || !resultCount) return;
 
   const records = filteredRecords();
   resultCount.textContent = `${records.length}건`;
-  grid.innerHTML = records.length
-    ? records.map(cardTemplate).join("")
+  list.innerHTML = records.length
+    ? records.map(listItemTemplate).join("")
     : `
       <div class="empty-state">
         <strong>일치하는 브리핑이 없습니다.</strong>
@@ -139,46 +151,41 @@ function selectTag(tag) {
 function renderIndex() {
   setDocumentTitle();
   const tags = uniqueTags(state.records);
-  const newest = state.records[0]?.createdAt;
 
   app.innerHTML = `
-    <div class="archive-shell">
-      <section class="archive-hero" aria-labelledby="archive-title">
+    <div class="archive-inner">
+      <header class="archive-head">
         <div>
-          <p class="eyebrow">Curated legal briefings</p>
-          <h1 id="archive-title">복잡한 법률 정보를<br /><em>한눈에</em> 읽는 기록.</h1>
+          <h1 id="archive-title">아카이브</h1>
+          <p>저장된 법률 브리핑을 최신순으로 확인하고, 제목·요약·태그로 검색할 수 있습니다.</p>
         </div>
-        <aside class="hero-aside">
-          <p>주요 질문과 법적 근거를 정리한 브리핑을 저장 시점 그대로 모았습니다. 카드를 선택하면 전체 내용을 확인할 수 있습니다.</p>
-          <div class="archive-stats">
-            <strong>${state.records.length}</strong>
-            <span>BRIEFINGS<br />${escapeHtml(formatDate(newest))} 기준</span>
-          </div>
-        </aside>
-      </section>
+        <span class="archive-count">전체 ${state.records.length}건</span>
+      </header>
 
       <section aria-label="브리핑 목록">
-        <div class="archive-toolbar">
-          <label class="search-wrap" for="archive-search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-              <circle cx="11" cy="11" r="7"></circle>
-              <path d="m20 20-4-4"></path>
-            </svg>
-            <input id="archive-search" type="search" autocomplete="off" placeholder="제목, 내용, 태그 검색" />
-          </label>
-          <p class="result-count" id="result-count" aria-live="polite">${state.records.length}건</p>
+        <div class="filter-panel">
+          <div class="filter-row">
+            <label class="search-wrap" for="archive-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m20 20-4-4"></path>
+              </svg>
+              <input id="archive-search" type="search" autocomplete="off" placeholder="제목·요약·태그로 검색…" />
+            </label>
+            <p class="result-count" id="result-count" aria-live="polite">${state.records.length}건</p>
+          </div>
+          <div class="tag-filter" aria-label="태그 필터">
+            ${["전체", ...tags].map((tag) => `
+              <button
+                class="filter-chip${tag === state.tag ? " active" : ""}"
+                type="button"
+                data-tag="${escapeHtml(tag)}"
+                aria-pressed="${tag === state.tag}"
+              >${tag === "전체" ? "전체" : escapeHtml(tag)}</button>
+            `).join("")}
+          </div>
         </div>
-        <div class="tag-filter" aria-label="태그 필터">
-          ${["전체", ...tags].map((tag) => `
-            <button
-              class="filter-chip${tag === state.tag ? " active" : ""}"
-              type="button"
-              data-tag="${escapeHtml(tag)}"
-              aria-pressed="${tag === state.tag}"
-            >${tag === "전체" ? "전체" : `#${escapeHtml(tag)}`}</button>
-          `).join("")}
-        </div>
-        <div class="briefing-grid" id="briefing-grid"></div>
+        <div class="briefing-list" id="briefing-list"></div>
       </section>
     </div>
   `;
@@ -214,18 +221,18 @@ function citationTemplate(citation) {
 function renderDetail(record) {
   setDocumentTitle(record.title);
   const citations = record.citations.map(citationTemplate).filter(Boolean).join("");
-  const tags = record.tags.map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`).join("");
+  const tags = record.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("");
 
   app.innerHTML = `
-    <article class="detail-shell">
+    <article class="detail-inner">
       <nav class="detail-nav" aria-label="브리핑 탐색">
         <a class="back-link" href="#/"><span aria-hidden="true">←</span> 전체 브리핑</a>
         <button class="share-button" id="share-button" type="button"><span aria-hidden="true">↗</span> 링크 복사</button>
       </nav>
 
-      <header class="detail-header">
-        <div class="detail-kicker">
-          <span>Legal briefing</span>
+      <header class="detail-head">
+        <div class="detail-meta">
+          <span>법률 브리핑</span>
           <time datetime="${escapeHtml(record.createdAt)}">${escapeHtml(formatDate(record.createdAt, true))}</time>
         </div>
         <h1>${escapeHtml(record.title)}</h1>
@@ -233,9 +240,9 @@ function renderDetail(record) {
         <div class="detail-tags" aria-label="태그">${tags}</div>
       </header>
 
-      <section class="question-box" aria-labelledby="question-heading">
-        <h2 id="question-heading">Original question</h2>
-        <p>${escapeHtml(record.question)}</p>
+      <section class="detail-section" aria-labelledby="question-heading">
+        <h2 class="section-label" id="question-heading">질문</h2>
+        <p class="detail-question">${escapeHtml(record.question)}</p>
       </section>
 
       <section class="briefing-body" aria-label="브리핑 본문">
@@ -244,7 +251,7 @@ function renderDetail(record) {
 
       ${citations ? `
         <section class="citations" aria-labelledby="citations-heading">
-          <h2 id="citations-heading">Related sources</h2>
+          <h2 id="citations-heading">출처</h2>
           <div class="citation-list">${citations}</div>
         </section>
       ` : ""}
@@ -307,9 +314,40 @@ function route() {
     else renderError("브리핑을 찾을 수 없습니다", "삭제되었거나 존재하지 않는 브리핑입니다.");
   }
 
-  window.scrollTo({ top: 0, behavior: "auto" });
+  closeSidebar();
+  appScroll.scrollTo({ top: 0, behavior: "auto" });
   app.focus({ preventScroll: true });
 }
+
+function updateTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  themeLabel.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+  themeColor.content = theme === "dark" ? "#0d0d0d" : "#ffffff";
+  try {
+    localStorage.setItem("law-theme", theme);
+  } catch {
+    // 저장소 접근이 차단된 환경에서는 현재 화면에만 적용한다.
+  }
+}
+
+function closeSidebar() {
+  sidebar.classList.remove("open");
+  backdrop.classList.remove("show");
+}
+
+menuButton.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  backdrop.classList.toggle("show");
+});
+backdrop.addEventListener("click", closeSidebar);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeSidebar();
+});
+themeButton.addEventListener("click", () => {
+  const current = document.documentElement.dataset.theme || "dark";
+  updateTheme(current === "dark" ? "light" : "dark");
+});
+updateTheme(document.documentElement.dataset.theme || "dark");
 
 async function boot() {
   try {

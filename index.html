@@ -5,36 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="한국 법률 브리핑을 카드와 상세 문서로 살펴보는 정적 아카이브"
+      content="법령·판례 근거 기반 법률 브리핑 정적 아카이브"
     />
-    <meta name="theme-color" content="#f4f0e8" />
+    <meta name="theme-color" content="#0d0d0d" />
     <title>법률 브리핑 아카이브</title>
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("law-theme") || "dark";
+      } catch {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
     <link rel="stylesheet" href="./styles.css" />
     <script src="./vendor/marked.umd.js" defer></script>
     <script src="./vendor/purify.min.js" defer></script>
     <script src="./app.js" defer></script>
   </head>
   <body>
-    <header class="site-header">
+    <aside id="sidebar">
       <a class="brand" href="#/" aria-label="브리핑 목록으로 이동">
-        <span class="brand-mark" aria-hidden="true">法</span>
-        <span>
-          <strong>법률 브리핑</strong>
-          <small>ARCHIVE</small>
-        </span>
+        <span class="logo" aria-hidden="true">§</span>
+        <b>법률 자문</b>
       </a>
-      <p class="header-note">법령·판례 기반 정보 스냅샷</p>
-    </header>
+      <div class="nav-sep"></div>
+      <a class="nav-btn active" href="#/">
+        <span class="ic" aria-hidden="true">▦</span>
+        아카이브
+      </a>
+      <div class="side-foot">
+        <button class="nav-btn theme-btn" id="theme-btn" type="button">
+          <span class="ic" aria-hidden="true">◐</span>
+          <span id="theme-label">라이트 모드</span>
+        </button>
+        법제처 법령·판례 근거 기반<br />정적 브리핑 스냅샷
+      </div>
+    </aside>
+    <div class="backdrop" id="backdrop"></div>
 
-    <main id="app" tabindex="-1">
-      <section class="loading" aria-live="polite">
-        <span class="loading-mark" aria-hidden="true"></span>
-        <p>브리핑을 불러오는 중입니다.</p>
-      </section>
-    </main>
+    <div id="content">
+      <header class="topbar">
+        <button class="icon-btn" id="menu-btn" type="button" aria-label="메뉴 열기">☰</button>
+        <b>아카이브</b>
+      </header>
 
-    <footer class="site-footer">
-      <p>본 아카이브는 저장 시점의 정적 자료이며 공식 법률 자문이 아닙니다.</p>
-    </footer>
+      <div id="app-scroll">
+        <main id="app" tabindex="-1">
+          <section class="loading" aria-live="polite">
+            <span class="loading-mark" aria-hidden="true"></span>
+            <p>브리핑을 불러오는 중입니다.</p>
+          </section>
+        </main>
+        <footer class="site-footer">
+          본 아카이브는 저장 시점의 정적 자료이며 공식 법률 자문이 아닙니다.
+        </footer>
+      </div>
+    </div>
   </body>
 </html>
