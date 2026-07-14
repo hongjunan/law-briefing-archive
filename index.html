@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="법령·판례 근거 기반 법률 브리핑 정적 아카이브"
+      content="법령·판례 근거 기반 법률 자문 정적 아카이브"
     />
     <meta name="theme-color" content="#0d0d0d" />
-    <title>법률 브리핑 아카이브</title>
+    <title>법률 자문 아카이브</title>
     <script>
       try {
         document.documentElement.dataset.theme = localStorage.getItem("law-theme") || "dark";
@@ -23,7 +23,7 @@
   </head>
   <body>
     <aside id="sidebar">
-      <a class="brand" href="#/" aria-label="브리핑 목록으로 이동">
+      <a class="brand" href="#/" aria-label="법률 자문 기록 목록으로 이동">
         <span class="logo" aria-hidden="true">§</span>
         <b>법률 자문</b>
       </a>
@@ -37,7 +37,7 @@
           <span class="ic" aria-hidden="true">◐</span>
           <span id="theme-label">라이트 모드</span>
         </button>
-        법제처 법령·판례 근거 기반<br />정적 브리핑 스냅샷
+        법제처 법령·판례 근거 기반<br />정적 자문 기록 스냅샷
       </div>
     </aside>
     <div class="backdrop" id="backdrop"></div>
@@ -52,7 +52,7 @@
         <main id="app" tabindex="-1">
           <section class="loading" aria-live="polite">
             <span class="loading-mark" aria-hidden="true"></span>
-            <p>브리핑을 불러오는 중입니다.</p>
+            <p>자문 기록을 불러오는 중입니다.</p>
           </section>
         </main>
         <footer class="site-footer">

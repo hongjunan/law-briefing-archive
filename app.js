@@ -47,7 +47,7 @@ const normalizeRecord = (record) => ({
   createdAt: String(record?.createdAt || ""),
   question: String(record?.question || ""),
   answerMarkdown: String(record?.answerMarkdown || ""),
-  title: String(record?.title || "제목 없는 브리핑"),
+  title: String(record?.title || "제목 없는 자문 기록"),
   summary: String(record?.summary || "요약이 제공되지 않았습니다."),
   citations: Array.isArray(record?.citations) ? record.citations : [],
   tags: Array.isArray(record?.tags) ? record.tags.map(String) : [],
@@ -68,8 +68,8 @@ const renderMarkdown = (markdown) => {
 
 const setDocumentTitle = (title) => {
   document.title = title
-    ? `${title} | 법률 브리핑 아카이브`
-    : "법률 브리핑 아카이브";
+    ? `${title} | 법률 자문 아카이브`
+    : "법률 자문 아카이브";
 };
 
 function uniqueTags(records) {
@@ -87,7 +87,7 @@ function listItemTemplate(record) {
     .slice(0, 4)
     .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
     .join("");
-  const href = `#/briefing/${encodeURIComponent(record.id)}`;
+  const href = `#/archive/${encodeURIComponent(record.id)}`;
   const sourceCount = record.citations.length;
 
   return `
@@ -132,7 +132,7 @@ function renderCards() {
     ? records.map(listItemTemplate).join("")
     : `
       <div class="empty-state">
-        <strong>일치하는 브리핑이 없습니다.</strong>
+        <strong>일치하는 자문 기록이 없습니다.</strong>
         <p>검색어나 선택한 태그를 바꿔보세요.</p>
       </div>
     `;
@@ -157,12 +157,12 @@ function renderIndex() {
       <header class="archive-head">
         <div>
           <h1 id="archive-title">아카이브</h1>
-          <p>저장된 법률 브리핑을 최신순으로 확인하고, 제목·요약·태그로 검색할 수 있습니다.</p>
+          <p>저장된 법률 자문을 최신순으로 확인하고, 제목·요약·태그로 검색할 수 있습니다.</p>
         </div>
         <span class="archive-count">전체 ${state.records.length}건</span>
       </header>
 
-      <section aria-label="브리핑 목록">
+      <section aria-label="법률 자문 기록 목록">
         <div class="filter-panel">
           <div class="filter-row">
             <label class="search-wrap" for="archive-search">
@@ -225,14 +225,14 @@ function renderDetail(record) {
 
   app.innerHTML = `
     <article class="detail-inner">
-      <nav class="detail-nav" aria-label="브리핑 탐색">
-        <a class="back-link" href="#/"><span aria-hidden="true">←</span> 전체 브리핑</a>
+      <nav class="detail-nav" aria-label="법률 자문 기록 탐색">
+        <a class="back-link" href="#/"><span aria-hidden="true">←</span> 전체 자문 기록</a>
         <button class="share-button" id="share-button" type="button"><span aria-hidden="true">↗</span> 링크 복사</button>
       </nav>
 
       <header class="detail-head">
         <div class="detail-meta">
-          <span>법률 브리핑</span>
+          <span>법률 자문</span>
           <time datetime="${escapeHtml(record.createdAt)}">${escapeHtml(formatDate(record.createdAt, true))}</time>
         </div>
         <h1>${escapeHtml(record.title)}</h1>
@@ -245,7 +245,7 @@ function renderDetail(record) {
         <p class="detail-question">${escapeHtml(record.question)}</p>
       </section>
 
-      <section class="briefing-body" aria-label="브리핑 본문">
+      <section class="briefing-body" aria-label="법률 자문 답변">
         ${renderMarkdown(record.answerMarkdown)}
       </section>
 
@@ -288,7 +288,7 @@ function renderError(title, message) {
       <div>
         <h1>${escapeHtml(title)}</h1>
         <p>${escapeHtml(message)}</p>
-        <a href="#/">← 브리핑 목록으로 돌아가기</a>
+        <a href="#/">← 자문 기록 목록으로 돌아가기</a>
       </div>
     </section>
   `;
@@ -296,7 +296,7 @@ function renderError(title, message) {
 
 function route() {
   const hash = window.location.hash || "#/";
-  const match = hash.match(/^#\/briefing\/([^/?#]+)$/);
+  const match = hash.match(/^#\/archive\/([^/?#]+)$/);
 
   if (!match) {
     if (hash !== "#/" && hash !== "#") window.history.replaceState(null, "", "#/");
@@ -306,12 +306,12 @@ function route() {
     try {
       id = decodeURIComponent(match[1]);
     } catch {
-      renderError("잘못된 주소입니다", "브리핑 주소 형식을 확인해 주세요.");
+      renderError("잘못된 주소입니다", "자문 기록 주소 형식을 확인해 주세요.");
       return;
     }
     const record = state.records.find((item) => item.id === id);
     if (record) renderDetail(record);
-    else renderError("브리핑을 찾을 수 없습니다", "삭제되었거나 존재하지 않는 브리핑입니다.");
+    else renderError("자문 기록을 찾을 수 없습니다", "삭제되었거나 존재하지 않는 자문 기록입니다.");
   }
 
   closeSidebar();
